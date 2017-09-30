@@ -62,23 +62,50 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+X = [ones(m,1) X];
+const = ones(m, 1);
+i = size(Theta2, 1);
+Y = repmat([1:i], size(y, 1), 1);
+for i = 1:m
+  Y(i,:) = Y(i,:) == y(i);
+endfor
+Z_2 = X*Theta1';
+A = sigmoid(Z_2);
+A = [ones(size(A,1) , 1) A];
+H = sigmoid(A*Theta2');
+J = -(1/m)*((Y.*log(H) + (1-Y).*log(1-H))'*const);
+const = ones(size(J));
+J = J'*const;
+Theta1_z = Theta1;
+Theta2_z = Theta2;
+Theta1_z(:,1) = zeros(size(Theta1,1),1);
+Theta2_z(:,1) = zeros(size(Theta2,1),1);
+Theta1_sq = Theta1_z*Theta1_z';
+Theta1_sq = Theta1_sq.*eye(size(Theta1_sq));
+Theta2_sq = Theta2_z*Theta2_z';
+Theta2_sq = Theta2_sq.*eye(size(Theta2_sq));
+Theta2_sum = (Theta2_sq*ones(size(Theta2_sq,1),1))'*(ones(size(Theta2_sq,1),1));
+Theta1_sum = (Theta1_sq*ones(size(Theta1_sq,1),1))'*(ones(size(Theta1_sq,1),1));
+
+J = J + (lambda/(2*m))*(Theta1_sum + Theta2_sum);
+error = H - Y;
 
 
+del_3 = H - Y;
+del_2 = (del_3*Theta2);
+del_2 = del_2(:, [2:end]).*sigmoidGradient(Z_2);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+for i = 1:m
+  z_2 = Theta1*X(i,:)';
+  del_3 = (H(i, :) - Y(i, :))';
+  del_2 = Theta2'*del_3;
+  del_2 = del_2([2:end]);
+  del_2 = (del_2).*[sigmoidGradient(z_2)];
+  Theta1_grad = Theta1_grad + (del_2)*X(i,:);
+  Theta2_grad = Theta2_grad + (del_3)*([1; sigmoid(z_2)]');
+endfor
+Theta1_grad = Theta1_grad/m + (lambda/m)*(Theta1_z);
+Theta2_grad = Theta2_grad/m + (lambda/m)*(Theta2_z);
 
 % -------------------------------------------------------------
 

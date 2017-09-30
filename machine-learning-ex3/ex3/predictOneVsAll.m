@@ -16,6 +16,9 @@ p = zeros(size(X, 1), 1);
 
 % Add ones to the X data matrix
 X = [ones(m, 1) X];
+Y = zeros(m,num_labels);
+Y = X*all_theta';
+[M, p] = max(Y, [], 2);
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: Complete the following code to make predictions using
